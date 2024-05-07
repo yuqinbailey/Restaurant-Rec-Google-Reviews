@@ -44,14 +44,12 @@ def get_similar_users_avg_rating(user_df, df_filtered, user, restaurant, embeddi
         return None
         
     # Retrieve embeddings for all users who have commented on this restaurant
-    user_embeddings = user_df[user_df['user_id'].isin(filtered_reviews['user_id'])]
-    if len(user_embeddings) == 0:
+    user_indices = user_df.index[user_df['user_id'].isin(filtered_reviews['user_id'])].tolist()
+    if len(user_indices) == 0:
         return None
     
     # Calculate cosine similarity between target user and all users in user_embeddings
-    similarities = cosine_similarity([target_embedding], np.stack(user_embeddings[embedding].values))
-    
-    similarities = cosine_similarity([target_embedding], user_embeddings)
+    similarities = cosine_similarity([target_embedding], embeddings[user_indices])
     
     # Create a DataFrame for similarities
     similarity_df = pd.DataFrame({
