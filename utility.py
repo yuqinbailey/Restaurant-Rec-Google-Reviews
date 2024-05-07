@@ -28,7 +28,9 @@ def get_emoji_pattern():
         "]+", flags=re.UNICODE)
     return emoji_pattern
 
-def get_similar_users_avg_rating(user_df, df_filtered, user, restaurant, embedding='bert_embedding', k=10):
+def get_similar_users_avg_rating(user_df, df_filtered, user, restaurant, embedding_path, k=10):
+    embeddings = np.load(embedding_path)
+
     # Filter df_filtered for reviews on the specific restaurant
     filtered_reviews = df_filtered[df_filtered['gmap_id'] == restaurant]
     
@@ -36,7 +38,8 @@ def get_similar_users_avg_rating(user_df, df_filtered, user, restaurant, embeddi
     user_df['user_id'] = user_df['user_id'].astype(str)
     # Check if the user is in the DataFrame and if so, retrieve the embedding
     if user in user_df['user_id'].values:
-        target_embedding = user_df[user_df['user_id'] == user][embedding].values[0]
+        target_index = user_df.index[user_df['user_id'] == user].tolist()[0]
+        target_embedding = embeddings[target_index]
     else:
         return None
         
@@ -48,9 +51,11 @@ def get_similar_users_avg_rating(user_df, df_filtered, user, restaurant, embeddi
     # Calculate cosine similarity between target user and all users in user_embeddings
     similarities = cosine_similarity([target_embedding], np.stack(user_embeddings[embedding].values))
     
+    similarities = cosine_similarity([target_embedding], user_embeddings)
+    
     # Create a DataFrame for similarities
     similarity_df = pd.DataFrame({
-        'user_id': user_embeddings['user_id'],
+        'user_id': user_df.iloc[user_indices]['user_id'],
         'similarity': similarities.flatten()
     })
     
