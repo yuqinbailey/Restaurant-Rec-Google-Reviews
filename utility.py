@@ -65,7 +65,7 @@ def get_similar_users_avg_rating(user_df, df_filtered, user, restaurant, embeddi
     
     return average_rating
 
-def merge_df(df_filtered, num_comments=50):
+def merge_df(df_filtered, num_comments=20):
     df = pd.read_csv("data/data_ma.csv")
 
     df_cleaned = pd.merge(df_filtered[df_filtered['comment_count'] >= num_comments], 
